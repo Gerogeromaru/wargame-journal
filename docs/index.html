@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wargame Journal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">▌</span>
+      <span class="title" id="appTitle">Wargame Journal</span>
+      <span class="subtitle" id="appSubtitle"></span>
+    </div>
+    <div class="selectors">
+      <label>Site <select id="siteSel"></select></label>
+      <label>Game <select id="gameSel"></select></label>
+      <input id="search" type="search" placeholder="検索: コマンド/解説/タグ" />
+    </div>
+    <div class="meta" id="updated"></div>
+  </header>
+
+  <main class="layout">
+    <nav class="sidebar" id="levelList"></nav>
+    <section class="detail" id="detail"></section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
