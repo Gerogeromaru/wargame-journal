@@ -472,6 +472,45 @@
                 "nc <host> <port> で接続。カーソルが止まる=接続成功して入力待ち。怖がらず送信する",
                 "次の15→16は同じ流れだが SSL/TLS 暗号化が必要(平文ncでは弾かれる)→openssl s_client / ncat --ssl の出番"
               ]
+            },
+            {
+              "id": "15-16",
+              "from": 15,
+              "to": 16,
+              "title": "SSL/TLSで暗号化してパスを送る (openssl s_client)",
+              "goal": "現レベルのパスを localhost:30001 へ SSL/TLS 経由で送ると次のパスが返る",
+              "status": "done",
+              "date": "2026-06-18",
+              "boss": false,
+              "tags": [
+                "openssl",
+                "ssl",
+                "tls",
+                "network"
+              ],
+              "steps": [
+                {
+                  "cmd": "ssh bandit15@bandit.labs.overthewire.org -p 2220",
+                  "note": "bandit15 でログイン"
+                },
+                {
+                  "cmd": "openssl s_client -connect localhost:30001",
+                  "note": "TLSクライアントで30001に接続。最初に証明書情報がドバっと出る=TLSハンドシェイク(暗号トンネル敷設)。終わると入力待ち"
+                },
+                {
+                  "cmd": "openssl s_client -connect localhost:30001 -quiet",
+                  "note": "-quiet で証明書の山を抑制＆入力先頭R/Qの特殊解釈を無効化。暗号化されたncのように使える(初心者はこっち推奨)"
+                },
+                {
+                  "cmd": "8xCjnmgoKbGLhHFAZlGE5Tmu4M2tKJQo  (入力待ちに貼って Enter)",
+                  "note": "暗号トンネルの中で現レベルのパスを送信→Correct!と共に bandit16 のパスが返る"
+                }
+              ],
+              "takeaways": [
+                "通信は『待ち受けるサーバー(service/daemon)』と『話しかけるクライアント(nc/openssl)』の2者。localhost:PORT=このマシンのPORT番窓口で待つプログラムに話しかける",
+                "nc=平文TCP / openssl s_client=まずTLSハンドシェイクで暗号トンネルを作ってから喋る。http vs https と同じ仕組みを手動でやっている",
+                "openssl s_client の罠: 入力行の先頭R=再ネゴシエーション/Q=切断と解釈される。-quiet で無効化できる"
+              ]
             }
           ]
         }
