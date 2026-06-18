@@ -3,7 +3,7 @@ window.JOURNAL_DATA = {
   "meta": {
     "title": "Wargame Journal",
     "subtitle": "練習サイトの攻略記録（コマンド＋解説）",
-    "updated": "2026-06-16"
+    "updated": "2026-06-18"
   },
   "sites": [
     {
@@ -438,6 +438,40 @@ window.JOURNAL_DATA = {
                 "盗んだ秘密鍵は自分のマシンに持ち帰って使う＝実戦のlateral movement（横展開）。",
                 "ssh -i で鍵を指定。鍵ファイルは chmod 600 / icacls で『自分だけ』に締める。",
                 "鍵認証ならパスワードなしでログインできる（昨日のMac⇔Win SSHと同じ原理）。"
+              ]
+            },
+            {
+              "id": "14-15",
+              "from": 14,
+              "to": 15,
+              "title": "ネットサービスにパスワードを送る (nc)",
+              "goal": "今のレベルのパスワードを localhost:30000 に送ると次のパスが返る",
+              "status": "done",
+              "date": "2026-06-18",
+              "boss": false,
+              "tags": [
+                "nc",
+                "network",
+                "tcp"
+              ],
+              "steps": [
+                {
+                  "cmd": "ssh bandit14@bandit.labs.overthewire.org -p 2220",
+                  "note": "まず bandit14 にログイン。パスは前レベルで /etc/bandit_pass/bandit14 から取得済"
+                },
+                {
+                  "cmd": "nc localhost 30000",
+                  "note": "nc(netcat)=TCPの相手と会話する道具。localhost の 30000番に接続。繋がるとカーソルが止まり入力待ちになる"
+                },
+                {
+                  "cmd": "MU4VWeTyJk8ROof1qqmcBPaLh7lDCPvS  (入力待ちに貼って Enter)",
+                  "note": "現レベルのパスワードを1行送信。'Correct!' と一緒に bandit15 のパスが返る"
+                }
+              ],
+              "takeaways": [
+                "ファイルを読む段階から『ネットワークサービスと会話する』段階へ。cat ではなく nc を使う",
+                "nc <host> <port> で接続。カーソルが止まる=接続成功して入力待ち。怖がらず送信する",
+                "次の15→16は同じ流れだが SSL/TLS 暗号化が必要(平文ncでは弾かれる)→openssl s_client / ncat --ssl の出番"
               ]
             }
           ]
