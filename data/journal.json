@@ -511,6 +511,47 @@
                 "nc=平文TCP / openssl s_client=まずTLSハンドシェイクで暗号トンネルを作ってから喋る。http vs https と同じ仕組みを手動でやっている",
                 "openssl s_client の罠: 入力行の先頭R=再ネゴシエーション/Q=切断と解釈される。-quiet で無効化できる"
               ]
+            },
+            {
+              "id": "16-17",
+              "from": 16,
+              "to": 17,
+              "title": "ポートスキャンで当たりを探しSSL接続→秘密鍵を奪取 (nmap+openssl)",
+              "goal": "31000-32000をスキャン→SSLで喋る正解ポートにパスを送るとSSH秘密鍵が返る→鍵でbandit17へ",
+              "status": "done",
+              "date": "2026-06-18",
+              "boss": true,
+              "tags": [
+                "nmap",
+                "recon",
+                "openssl",
+                "ssl",
+                "ssh-key",
+                "lateral-movement"
+              ],
+              "steps": [
+                {
+                  "cmd": "nmap -p 31000-32000 localhost",
+                  "note": "1000個のポートから open(待ち受け中)を炙り出す=recon。手でncは無理→スキャナの出番"
+                },
+                {
+                  "cmd": "nmap -sV -p <openだったポート> localhost",
+                  "note": "-sV でサービス種別を判定。'ssl' と出るのが正解ポート(今回は31790)。平文ダミーは送った文字をオウム返しするだけ"
+                },
+                {
+                  "cmd": "openssl s_client -connect localhost:31790 -quiet",
+                  "note": "正解ポートにSSLで接続しbandit16パスを送信→-----BEGIN RSA PRIVATE KEY----- で始まる秘密鍵が返る"
+                },
+                {
+                  "cmd": "鍵を自PCに保存→icacls/chmod 600で自分だけ読める権限に→ssh -i key bandit17@bandit.labs.overthewire.org -p 2220",
+                  "note": "サーバー内localhost:2220はブロック(13->14と同じ罠)→鍵を持ち出し外から鍵認証ログイン=lateral movement"
+                }
+              ],
+              "takeaways": [
+                "recon(列挙)→actual connection(実接続)の二段構え。nmapで当たりを付け、openssl/sshで裏を取る",
+                "返ってくるのがパスワードとは限らない。今回はSSH秘密鍵=ファイルに保存し権限を絞って ssh -i で使う",
+                "localhostは1台で『サーバー役』と『クライアント役』を同時に演じられる。ポート=同一マシン内の窓口番号"
+              ]
             }
           ]
         }
