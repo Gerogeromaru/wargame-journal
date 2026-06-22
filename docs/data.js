@@ -3,7 +3,7 @@ window.JOURNAL_DATA = {
   "meta": {
     "title": "Wargame Journal",
     "subtitle": "練習サイトの攻略記録（コマンド＋解説）",
-    "updated": "2026-06-18"
+    "updated": "2026-06-22"
   },
   "sites": [
     {
@@ -552,6 +552,69 @@ window.JOURNAL_DATA = {
                 "recon(列挙)→actual connection(実接続)の二段構え。nmapで当たりを付け、openssl/sshで裏を取る",
                 "返ってくるのがパスワードとは限らない。今回はSSH秘密鍵=ファイルに保存し権限を絞って ssh -i で使う",
                 "localhostは1台で『サーバー役』と『クライアント役』を同時に演じられる。ポート=同一マシン内の窓口番号"
+              ]
+            },
+            {
+              "id": "17-18",
+              "from": 17,
+              "to": 18,
+              "title": "2ファイルの差分から変わった1行を抜く (diff)",
+              "goal": "passwords.old と passwords.new は1行だけ違う。その違う行が bandit18 のパスワード。",
+              "status": "done",
+              "date": "2026-06-22",
+              "boss": false,
+              "tags": [
+                "diff",
+                "files",
+                "compare"
+              ],
+              "steps": [
+                {
+                  "cmd": "ll",
+                  "note": "ホームを確認。passwords.old と passwords.new が両方3300バイト=ほぼ同内容(1行だけ違うヒント)。所有者bandit18/グループbandit17で自分は読める。"
+                },
+                {
+                  "cmd": "diff passwords.new passwords.old",
+                  "note": "2ファイルの差分。出力 42c42 = 左42行目をchangeで右42行目に一致。'<'=左ファイル(コマンドで先に書いたnew) / '>'=右ファイル(old)。new側(<)の行がbandit18パス。"
+                },
+                {
+                  "cmd": "ssh bandit18@bandit.labs.overthewire.org -p 2220",
+                  "note": "diffで得たnew側のパス x2gLTT...でログイン。"
+                }
+              ],
+              "takeaways": [
+                "diffの '<'/'>' は『ファイルの新旧』ではなく『コマンドに書いた左/右の順番』で決まる。毎回どっちを先に書いたか意識する。",
+                "42c42 のc=change(変更), a=add(追加), d=delete(削除)。行番号は『左行c右行』。"
+              ]
+            },
+            {
+              "id": "18-19",
+              "from": 18,
+              "to": 19,
+              "title": ".bashrc改ざんで即ログアウトされる罠を回避 (sshコマンド実行)",
+              "goal": "ホームのreadmeに次のパス。だが.bashrcが改ざんされSSHログイン時に即exitさせられる(byebye)。対話シェルに入らずreadmeを読む。",
+              "status": "done",
+              "date": "2026-06-22",
+              "boss": false,
+              "tags": [
+                "ssh",
+                "bashrc",
+                "non-interactive",
+                "trap"
+              ],
+              "steps": [
+                {
+                  "cmd": "ssh bandit18@bandit.labs.overthewire.org -p 2220",
+                  "note": "普通にログインすると対話シェルが起動→改ざんされた.bashrcがexitを実行→即byebye(ログアウト)。"
+                },
+                {
+                  "cmd": "ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme",
+                  "note": "SSH末尾にコマンドを付けると対話シェルを開かず『1コマンド実行→即終了』。.bashrcのexitに捕まる前にreadmeの中身(=bandit19パス)が返る。"
+                }
+              ],
+              "takeaways": [
+                "ssh user@host コマンド と末尾にコマンドを付けると非対話実行。シェルに入れない/即落とされるサーバーからでも情報を抜ける実戦的な型。",
+                "コマンド引数の区切りは半角スペース。全角スペース(　)は環境次第で誤動作するので使わない。"
               ]
             }
           ]
